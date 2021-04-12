@@ -1,5 +1,5 @@
 data_set/
 */.idea/
 */__pycache__
-*.pth
-*.pt
+**/*.pth
+**/*.pt
