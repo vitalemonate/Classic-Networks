@@ -31,7 +31,7 @@ def main():
     # img = torch.unsqueeze(img, dim=0)
 
     # batch predict
-    images_path = "../test_images"
+    images_path = "../../test_images"
     dirs = os.listdir(images_path)
     image_list = []
     for img_name in dirs:

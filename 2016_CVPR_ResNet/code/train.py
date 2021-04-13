@@ -11,6 +11,8 @@ from torch.utils.data import DataLoader
 # from torchvision.models import resnet34
 from tqdm import tqdm
 from model import resnet34
+import time
+
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,7 +35,7 @@ def main():
     image_path = os.path.join(data_root, "data_set", "flower_data")
     assert os.path.exists(image_path), f"{image_path} does not exist"
 
-    batch_size = 16
+    batch_size = 32
     nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0])
     print(f"using {nw} workers to load data")
 
@@ -79,13 +81,14 @@ def main():
 
     loss_function = nn.CrossEntropyLoss()
     params = [p for p in net.parameters() if p.requires_grad]
-    optimizer = optim.Adam(params,  lr=0.0001)
+    optimizer = optim.Adam(params, lr=0.0001)
 
     epochs = 50
     best_acc = 0.0
     save_path = "./resNet_34.pth"
     train_steps = len(train_loader)
 
+    since = time.time()
     for epoch in range(epochs):
         net.train()
 
@@ -99,11 +102,9 @@ def main():
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-
             train_bar.desc = "train epoch[{}/{}] loss:{:.3f}".format(epoch + 1,
                                                                      epochs,
                                                                      loss)
-
         net.eval()
         acc = 0.0
         val_bar = tqdm(val_loader)
@@ -125,6 +126,10 @@ def main():
             torch.save(net.state_dict(), save_path)
 
     print("Finish Training")
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(
+        time_elapsed // 60, time_elapsed % 60))
+    print('Best val Acc: {:4f}'.format(best_acc))
 
 
 if __name__ == "__main__":

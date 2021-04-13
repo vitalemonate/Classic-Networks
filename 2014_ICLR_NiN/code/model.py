@@ -40,9 +40,6 @@ class NiN_model(nn.Module):
 
 
 if __name__ =='__main__':
-    net = NiN_model(in_channel=3)
-    X = torch.rand(128, 3, 224, 224)
-    # for name, blk in net.named_children():
-    #     X = blk(X)
-    #     print(name, 'output shape: ', X.shape)
-    print(net(X).shape)
+    from torchsummary import summary
+
+    model = NiN_model()
