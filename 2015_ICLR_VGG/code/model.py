@@ -64,20 +64,20 @@ def make_layer(cfg, batch_norm=False):
     return nn.Sequential(*layers)
 
 
-def vgg11_bn():
-    return VGG(make_layer(cfgs['A'], batch_norm=True), num_class=1000)
+def vgg11_bn(num_class=1000):
+    return VGG(make_layer(cfgs['A'], batch_norm=True), num_class=num_class)
 
 
-def vgg13_bn():
-    return VGG(make_layer(cfgs['B'], batch_norm=True), num_class=1000)
+def vgg13_bn(num_class=1000):
+    return VGG(make_layer(cfgs['B'], batch_norm=True), num_class=num_class)
 
 
-def vgg16_bn():
-    return VGG(make_layer(cfgs['D'], batch_norm=True), num_class=1000)
+def vgg16_bn(num_class=1000):
+    return VGG(make_layer(cfgs['D'], batch_norm=True), num_class=num_class)
 
 
-def vgg19_bn():
-    return VGG(make_layer(cfgs['E'], batch_norm=True), num_class=1000)
+def vgg19_bn(num_class=1000):
+    return VGG(make_layer(cfgs['E'], batch_norm=True), num_class=num_class)
 
 
 if __name__ == "__main__":

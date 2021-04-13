@@ -2,44 +2,54 @@ import torch
 import torch.nn as nn
 
 
-def nin_block(in_channel, out_channel, kernel_size, stride, padding=0):
-    return nn.Sequential(nn.Conv2d(in_channel, out_channel, kernel_size, stride, padding),
+def nin_block(in_channels, out_channels, kernel_size, stride, padding=0):
+    return nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding),
                          nn.ReLU(inplace=True),
-                         nn.Conv2d(out_channel, out_channel, 1),
+                         nn.Conv2d(out_channels, out_channels, 1),
                          nn.ReLU(inplace=True),
-                         nn.Conv2d(out_channel, out_channel, 1),
+                         nn.Conv2d(out_channels, out_channels, 1),
                          nn.ReLU(inplace=True)
                          )
 
 
-class NiN_model(nn.Module):
-    def __init__(self, in_channel):
-        super(NiN_model, self).__init__()
-        self.cnn_1 = nin_block(in_channel=in_channel, out_channel=96, kernel_size=11, stride=4, padding=0)
-        self.polling_1 = nn.MaxPool2d(kernel_size=3, stride=2)
-        self.drop_out = nn.Dropout()
-        self.cnn_2 = nin_block(in_channel=96, out_channel=256, kernel_size=5, stride=1, padding=2)
-        self.polling_2 = nn.MaxPool2d(kernel_size=3, stride=2)
+class NiN(nn.Module):
+    def __init__(self, num_classes=1000, init_weights=False):
+        super(NiN, self).__init__()
+        self.classifier = nn.Sequential(
+            nin_block(3, 96, kernel_size=11, stride=4, padding=0),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nin_block(96, 256, kernel_size=5, stride=1, padding=2),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nin_block(256, 384, kernel_size=3, stride=1, padding=1),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Dropout(0.5),
+            # 标签类别数是10
+            nin_block(384, num_classes, kernel_size=3, stride=1, padding=1),
+            nn.AdaptiveAvgPool2d((1, 1)),
+            # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+        )
+        if init_weights:
+            self.initialize_weights()
 
-        self.cnn_3 = nin_block(in_channel=256, out_channel=384, kernel_size=3, stride=1, padding=1)
-        self.polling_3 = nn.MaxPool2d(kernel_size=3, stride=2)
+    def forward(self, x):
+        x = self.classifier(x)
+        x = torch.flatten(x, start_dim=1)
+        return x
 
-        self.cnn_4 = nin_block(in_channel=384, out_channel=10, kernel_size=3, stride=1, padding=1)
-        self.global_average_polling = nn.AdaptiveAvgPool2d((1, 1))
-
-    def forward(self, X):
-        X = self.polling_1(self.cnn_1(X))
-        X = self.drop_out(X)
-        X = self.polling_2(self.cnn_2(X))
-        X = self.drop_out(X)
-        X = self.polling_3(self.cnn_3(X))
-        X = self.drop_out(X)
-        X = self.global_average_polling(self.cnn_4(X))
-        X = X.view(X.shape[0], -1)
-        return X
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                nn.init.constant_(m.bias, 0)
 
 
-if __name__ =='__main__':
+if __name__ == '__main__':
     from torchsummary import summary
 
-    model = NiN_model()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = NiN().to(device)
+    summary(model, (3, 224, 224), device=str(device))

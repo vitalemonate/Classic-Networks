@@ -7,16 +7,18 @@ from torchvision import transforms
 from PIL import Image
 import matplotlib.pyplot as plt
 import torch.nn as nn
-from model import GoogLeNet
+from model import vgg16_bn
 import numpy as np
 
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    data_transform = transforms.Compose([transforms.Resize((224, 224)),
-                                         transforms.ToTensor(),
-                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    data_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
 
     # batch predict
     images_path = "../../test_images"
@@ -36,8 +38,8 @@ def main():
     json_file = open(json_path, "r")
     class_indict = json.load(json_file)
 
-    net = GoogLeNet(num_classes=5).to(device)
-    weight_path = "./GoogLeNet.pth"
+    net = vgg16_bn(num_class=5).to(device)
+    weight_path = "./vgg16.pth"
     net.load_state_dict(torch.load(weight_path, map_location=device))
 
     net.eval()

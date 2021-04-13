@@ -1,5 +1,5 @@
 flower_data/
-*/.idea/
+*/.idea/*
 */__pycache__
 *.pth
 *.pt

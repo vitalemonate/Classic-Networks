@@ -7,14 +7,14 @@ from torchvision import transforms
 from PIL import Image
 import matplotlib.pyplot as plt
 import torch.nn as nn
-from model import GoogLeNet
+from model import NiN
 import numpy as np
 
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    data_transform = transforms.Compose([transforms.Resize((224, 224)),
+    data_transform = transforms.Compose([transforms.Resize((224, 224)),  # cannot 224, must (224, 224)
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
@@ -36,13 +36,14 @@ def main():
     json_file = open(json_path, "r")
     class_indict = json.load(json_file)
 
-    net = GoogLeNet(num_classes=5).to(device)
-    weight_path = "./GoogLeNet.pth"
+    net = NiN(num_classes=5).to(device)
+    weight_path = "./NiN.pth"
+    assert os.path.exists(weight_path), f"file: '{weight_path}' dose not exist."
     net.load_state_dict(torch.load(weight_path, map_location=device))
 
     net.eval()
     with torch.no_grad():
-        output = torch.squeeze(net(batch_image.to(device)).cpu())
+        output = net(batch_image.to(device)).cpu()
         predict = torch.softmax(output, dim=1)
         probs, classes = torch.max(predict, dim=1)
 
