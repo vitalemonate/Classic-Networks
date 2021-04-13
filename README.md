@@ -1,2 +1,4 @@
-# Papers
-This repository stores papers, notes and related codes of some classic networks.
+# 参考
+* https://github.com/WZMIAOMIAO/deep-learning-for-image-processing
+
+* https://tangshusen.me/Dive-into-DL-PyTorch/#/
