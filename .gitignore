@@ -1,7 +1,7 @@
 flower_data/
-*/.idea/*
-*/__pycache__
+**/.idea/*
+**/__pycache__
 *.pth
 *.pt
-*/runs
+**/runs
 */weights
