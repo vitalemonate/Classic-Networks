@@ -3,3 +3,5 @@ flower_data/
 */__pycache__
 *.pth
 *.pt
+*/runs
+*/weights
