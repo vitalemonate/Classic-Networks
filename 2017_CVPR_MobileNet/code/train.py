@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from model import MobileNet_v1
 import time
+from torch.utils.tensorboard import SummaryWriter
 
 
 def main():
@@ -30,6 +31,8 @@ def main():
     data_root = os.path.abspath(os.path.join(os.getcwd(), "../../"))
     image_path = os.path.join(data_root, "data_set", "flower_data")
     assert os.path.exists(image_path), f"{image_path} does not exist"
+
+    tb_writer = SummaryWriter(log_dir="runs/flower_experiment")
 
     batch_size = 32
     nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0])
@@ -108,6 +111,10 @@ def main():
         val_accurate = acc/val_num
         print('[epoch %d] train_loss: %.3f  val_accuracy: %.3f' %
               (epoch + 1, running_loss / train_steps, val_accurate))
+
+        tags = ["train_loss", "accuracy"]
+        tb_writer.add_scalar(tags[0], running_loss, epoch)
+        tb_writer.add_scalar(tags[1], acc, epoch)
 
         if val_accurate > best_acc:
             best_acc = val_accurate
