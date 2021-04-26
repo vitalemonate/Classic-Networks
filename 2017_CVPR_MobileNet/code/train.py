@@ -75,7 +75,7 @@ def main():
 
     epochs = 30
     best_acc = 0.0
-    save_path = "./MobileNet_v1.pth"
+    save_path = "MobileNet_v1.pth"
     train_steps = len(train_loader)
 
     since = time.time()
@@ -113,8 +113,28 @@ def main():
               (epoch + 1, running_loss / train_steps, val_accurate))
 
         tags = ["train_loss", "accuracy"]
-        tb_writer.add_scalar(tags[0], running_loss, epoch)
-        tb_writer.add_scalar(tags[1], acc, epoch)
+        tb_writer.add_scalar(tags[0], running_loss / train_steps, epoch)
+        tb_writer.add_scalar(tags[1], val_accurate, epoch)
+        tb_writer.add_histogram(tag="classifier.1.0",
+                                values=net.classifier[1][0].weight,
+                                global_step=epoch)
+        tb_writer.add_histogram(tag="classifier.1.3",
+                                values=net.classifier[1][3].weight,
+                                global_step=epoch)
+
+        tb_writer.add_histogram(tag="classifier.2.0",
+                                values=net.classifier[2][0].weight,
+                                global_step=epoch)
+        tb_writer.add_histogram(tag="classifier.2.3",
+                                values=net.classifier[2][3].weight,
+                                global_step=epoch)
+
+        tb_writer.add_histogram(tag="classifier.3.0",
+                                values=net.classifier[3][0].weight,
+                                global_step=epoch)
+        tb_writer.add_histogram(tag="classifier.3.3",
+                                values=net.classifier[3][3].weight,
+                                global_step=epoch)
 
         if val_accurate > best_acc:
             best_acc = val_accurate
