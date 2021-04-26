@@ -25,7 +25,7 @@ class MobileNet_v1(nn.Module):
     def __init__(self, num_classes=1000):
         super(MobileNet_v1, self).__init__()
         self.classifier = nn.Sequential(
-            conv_dw(3, 32, stride=2),
+            conv_bn(3, 32, kernel_size=3, stride=2),
             conv_dw(32, 64),
             conv_dw(64, 128, stride=2),
             conv_dw(128, 128),
